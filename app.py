@@ -111,7 +111,7 @@ def process_filings(sec_filing_urls):
         extracted_data = extract_ixbrl_data(htm_url)
         if not extracted_data.empty:
             results.append(extracted_data)
-            extracted_data_placeholder.dataframe(pd.concat(results, ignore_index=True))
+            #extracted_data_placeholder.dataframe(pd.concat(results, ignore_index=True))
 
         progress_bar.progress((idx + 1) / len(sec_filing_urls))
 
