@@ -159,38 +159,26 @@ if st.button("🚀 Submit & Process Data"):
 
                 if not extracted_df.empty:
                     extracted_df = extracted_df.merge(df_mapping, on="classid", how="left")
+                    extracted_df = extracted_df.merge(df_filings[["filingURL", "cik"]], on="filingURL", how="left")
+                    extracted_df = extracted_df.rename(columns={"cik": "CIK Number"})
+
                     columns_to_show = [
-                        "classid", "Ticker", "Class Name", "Series Name", "Series ID",
-                        "expense_pct", "expense_amt", "view_expense_text",
-                        "period.startDate_y", "period.endDate_y", "filingURL"
+                        "Series ID", "Series Name", "Class Name", "Ticker", 
+                        "expense_text", "return_table_text", 
+                        "period.startDate_y", "period.endDate_y", 
+                        "expense_pct", "expense_amt", 
+                        "filingURL", "CIK Number"
                     ]
                     columns_to_show = [col for col in columns_to_show if col in extracted_df.columns]
 
                     st.success(f"✅ Successfully processed {len(extracted_df)} records!")
                     st.write("**Click the 'View HTML' link to see the full ExpensesTextBlock content:**")
 
-                    html_links = []
-                    for idx, row in extracted_df.iterrows():
-                        links = []
-                        if 'expense_text' in row and pd.notnull(row['expense_text']):
-                            html = row['expense_text']
-                            b64 = base64.b64encode(html.encode()).decode()
-                            links.append(f"<a href='data:text/html;base64,{b64}' target='_blank'>Expense Text</a>")
-                        if 'return_table_text' in row and pd.notnull(row['return_table_text']):
-                            html = row['return_table_text']
-                            b64 = base64.b64encode(html.encode()).decode()
-                            links.append(f"<a href='data:text/html;base64,{b64}' target='_blank'>Return Table</a>")
-                        html_links.append(" | ".join(links))
+                    st.write(extracted_df[columns_to_show].to_html(escape=False, index=False), unsafe_allow_html=True)
 
-                    extracted_df["view_expense_text"] = html_links
-
-                    st.write(extracted_df.to_html(escape=False, index=False), unsafe_allow_html=True)
-
-                    csv_data = extracted_df.drop(columns=["expense_text", "return_table_text"], errors="ignore").to_csv(index=False).encode("utf-8")
+                    csv_data = extracted_df[columns_to_show].to_csv(index=False).encode("utf-8")
                     st.download_button("📅 Download Extracted Data", csv_data, "extracted_expenses.csv", "text/csv")
                 else:
                     st.error("❌ No valid data extracted.")
         else:
             st.error("❌ Select form types and valid date range.")
-
-st.markdown("<hr><p style='text-align:center;'>Built with ❤️ using Streamlit | SEC API Integration</p>", unsafe_allow_html=True)
