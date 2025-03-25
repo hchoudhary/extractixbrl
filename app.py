@@ -17,7 +17,7 @@ def extract_classid(segment_value):
     match = re.findall(r'C\d{9}', str(segment_value))
     return match[0] if match else None
 
-def fetch_filings(form_types, from_date, to_date):
+def fetch_filings(form_types, from_date, to_date, limit):
     st.write("🔍 Fetching filings from SEC...")
 
     form_query = " OR ".join([f'formType:"{ft}"' for ft in form_types])
@@ -33,7 +33,7 @@ def fetch_filings(form_types, from_date, to_date):
     filing_urls = []
 
     try:
-        while True:
+        while len(filing_urls) < limit:
             search_results = queryApi.get_filings(search_params)
             if not search_results or "filings" not in search_results:
                 break
@@ -53,9 +53,12 @@ def fetch_filings(form_types, from_date, to_date):
                 for f in filings
             ]
             filing_urls.extend(metadata)
+            if len(filing_urls) >= limit:
+                break
+
             search_params["from"] = str(int(search_params["from"]) + int(search_params["size"]))
 
-        df = pd.DataFrame(filing_urls)
+        df = pd.DataFrame(filing_urls[:limit])
         if not df.empty:
             st.success(f"✅ Successfully retrieved {len(df)} filings from SEC.")
         return df
@@ -140,6 +143,8 @@ with col1:
 with col2:
     to_date = st.date_input("🗓️ To Date")
 
+limit = st.selectbox("🔢 Limit number of SEC filings to fetch", options=[5, 20, 50, 100, 200], index=0)
+
 if st.button("🚀 Submit & Process Data"):
     if not os.path.exists(CLASS_MAPPING_FILE):
         st.error(f"❌ Required file '{CLASS_MAPPING_FILE}' is missing!")
@@ -150,7 +155,7 @@ if st.button("🚀 Submit & Process Data"):
         if not all(col in df_mapping.columns for col in required_columns):
             st.error(f"❌ '{CLASS_MAPPING_FILE}' is missing required columns.")
         elif form_types and from_date and to_date:
-            df_filings = fetch_filings(form_types, from_date, to_date)
+            df_filings = fetch_filings(form_types, from_date, to_date, limit)
             if df_filings.empty:
                 st.error("❌ No filings retrieved from SEC.")
             else:
@@ -182,3 +187,5 @@ if st.button("🚀 Submit & Process Data"):
                     st.error("❌ No valid data extracted.")
         else:
             st.error("❌ Select form types and valid date range.")
+
+st.markdown("<hr><p style='text-align:center;'>Built with ❤️ using Streamlit | SEC API Integration</p>", unsafe_allow_html=True)
