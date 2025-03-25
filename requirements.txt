@@ -1,3 +1,7 @@
 streamlit
-pandas
+panda
 sec-api
+numpy
+XbrlApi
+aiohttp
+matplotlib
