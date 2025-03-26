@@ -195,74 +195,74 @@ if submit_clicked:
                     """, unsafe_allow_html=True)
                     st.dataframe(df_display.style.apply(lambda x: ["color: green" if v is True else "" for v in x], subset=['Has Performance Data']))
 
-st.markdown("""</div>""", unsafe_allow_html=True)
-csv_data = df_results.to_csv(index=False).encode("utf-8")
-st.download_button("⬇️ Download Results as CSV", csv_data, "performance_disclosure_results.csv", "text/csv")
-with st.expander("📊 Performance Disclosure by Entity", expanded=True):
-    if "Entity Name" in df_results.columns:
-        perf_by_entity = df_results[df_results["Has Performance Data"]].groupby("Entity Name")["classid"].count().sort_values(ascending=False)
-        fig, ax = plt.subplots(figsize=(10, 6))
-        sns.barplot(x=perf_by_entity.values, y=perf_by_entity.index, ax=ax, palette="Blues_d")
-        ax.set_xlabel("# of Classes Disclosing Performance")
-        ax.set_ylabel("Entity Name")
-        ax.set_title("Performance Disclosure by Entity")
-        st.pyplot(fig)
-    else:
-        st.info("ℹ️ 'Entity Name' column not found in mapping file.")
-
-
-if 'df_results' in st.session_state and not st.session_state.df_results.empty:
-    df_results = st.session_state.df_results
-    with st.expander("🌟 Funds with Lowest Expenses and Highest Performance", expanded=True):
-        col_exp, col_perf, col_topn = st.columns(3)
-        with col_exp:
-            max_expense_filter = st.number_input("💰 Max Expense Amount ($)", min_value=0.0, value=100.0, key="expense_filter")
-        with col_perf:
-            min_perf_filter = st.number_input("📈 Min Performance (%)", min_value=0.0, value=0.0, key="performance_filter")
-        with col_topn:
-            top_n = st.slider("🔢 Number of Top Results", min_value=5, max_value=50, value=10, key="topn_slider")
-
-        top_performers = df_results.copy()
-        top_performers["expense_amt"] = pd.to_numeric(top_performers["expense_amt"], errors="coerce")
-        top_performers["performance_pct"] = pd.to_numeric(top_performers["performance_pct"], errors="coerce")
-        top_performers = top_performers.dropna(subset=["expense_amt", "performance_pct"])
-
-        top_performers_filtered = top_performers[
-            (top_performers["expense_amt"] <= max_expense_filter) &
-            (top_performers["performance_pct"] >= min_perf_filter)
-        ]
-
-        lowest_expense = top_performers_filtered.sort_values("expense_amt").head(top_n)
-        highest_perf = top_performers_filtered.sort_values("performance_pct", ascending=False).head(top_n)
-
-        st.write(f"#### 💸 Lowest Expense Funds (Filtered to ≤ ${max_expense_filter})")
-        df_le_display = lowest_expense.copy()
-        for col in ["Entity Name", "Series Name"]:
-            if col not in df_le_display.columns:
-                df_le_display[col] = "Data not available"
-            else:
-                df_le_display[col] = df_le_display[col].fillna("Data not available")
-        st.container().markdown("""
-<div style='overflow-x:auto;'>
-""", unsafe_allow_html=True)
-st.dataframe(df_le_display[["Entity Name", "Series Name", "classid", "expense_amt", "performance_pct"]])
-st.markdown("""</div>""", unsafe_allow_html=True)
-
-st.write(f"#### 🚀 Highest Performance Funds (Filtered to ≥ {min_perf_filter}%)")
-df_hp_display = highest_perf.copy()
-for col in ["Entity Name", "Series Name"]:
-    if col not in df_hp_display.columns:
-        df_hp_display[col] = "Data not available"
-    else:
-        df_hp_display[col] = df_hp_display[col].fillna("Data not available")
-st.container().markdown("""
-<div style='overflow-x:auto;'>
-""", unsafe_allow_html=True)
-st.dataframe(df_hp_display[["Entity Name", "Series Name", "classid", "expense_amt", "performance_pct"]])
-st.markdown("""</div>""", unsafe_allow_html=True)
-
-
-st.markdown("""
-    <br><hr>
+    st.markdown("""</div>""", unsafe_allow_html=True)
+    csv_data = df_results.to_csv(index=False).encode("utf-8")
+    st.download_button("⬇️ Download Results as CSV", csv_data, "performance_disclosure_results.csv", "text/csv")
+    with st.expander("📊 Performance Disclosure by Entity", expanded=True):
+        if "Entity Name" in df_results.columns:
+            perf_by_entity = df_results[df_results["Has Performance Data"]].groupby("Entity Name")["classid"].count().sort_values(ascending=False)
+            fig, ax = plt.subplots(figsize=(10, 6))
+            sns.barplot(x=perf_by_entity.values, y=perf_by_entity.index, ax=ax, palette="Blues_d")
+            ax.set_xlabel("# of Classes Disclosing Performance")
+            ax.set_ylabel("Entity Name")
+            ax.set_title("Performance Disclosure by Entity")
+            st.pyplot(fig)
+        else:
+            st.info("ℹ️ 'Entity Name' column not found in mapping file.")
     
-""", unsafe_allow_html=True)
+    
+    if 'df_results' in st.session_state and not st.session_state.df_results.empty:
+        df_results = st.session_state.df_results
+        with st.expander("🌟 Funds with Lowest Expenses and Highest Performance", expanded=True):
+            col_exp, col_perf, col_topn = st.columns(3)
+            with col_exp:
+                max_expense_filter = st.number_input("💰 Max Expense Amount ($)", min_value=0.0, value=100.0, key="expense_filter")
+            with col_perf:
+                min_perf_filter = st.number_input("📈 Min Performance (%)", min_value=0.0, value=0.0, key="performance_filter")
+            with col_topn:
+                top_n = st.slider("🔢 Number of Top Results", min_value=5, max_value=50, value=10, key="topn_slider")
+    
+            top_performers = df_results.copy()
+            top_performers["expense_amt"] = pd.to_numeric(top_performers["expense_amt"], errors="coerce")
+            top_performers["performance_pct"] = pd.to_numeric(top_performers["performance_pct"], errors="coerce")
+            top_performers = top_performers.dropna(subset=["expense_amt", "performance_pct"])
+    
+            top_performers_filtered = top_performers[
+                (top_performers["expense_amt"] <= max_expense_filter) &
+                (top_performers["performance_pct"] >= min_perf_filter)
+            ]
+    
+            lowest_expense = top_performers_filtered.sort_values("expense_amt").head(top_n)
+            highest_perf = top_performers_filtered.sort_values("performance_pct", ascending=False).head(top_n)
+    
+            st.write(f"#### 💸 Lowest Expense Funds (Filtered to ≤ ${max_expense_filter})")
+            df_le_display = lowest_expense.copy()
+            for col in ["Entity Name", "Series Name"]:
+                if col not in df_le_display.columns:
+                    df_le_display[col] = "Data not available"
+                else:
+                    df_le_display[col] = df_le_display[col].fillna("Data not available")
+            st.container().markdown("""
+    <div style='overflow-x:auto;'>
+    """, unsafe_allow_html=True)
+    st.dataframe(df_le_display[["Entity Name", "Series Name", "classid", "expense_amt", "performance_pct"]])
+    st.markdown("""</div>""", unsafe_allow_html=True)
+    
+    st.write(f"#### 🚀 Highest Performance Funds (Filtered to ≥ {min_perf_filter}%)")
+    df_hp_display = highest_perf.copy()
+    for col in ["Entity Name", "Series Name"]:
+        if col not in df_hp_display.columns:
+            df_hp_display[col] = "Data not available"
+        else:
+            df_hp_display[col] = df_hp_display[col].fillna("Data not available")
+    st.container().markdown("""
+    <div style='overflow-x:auto;'>
+    """, unsafe_allow_html=True)
+    st.dataframe(df_hp_display[["Entity Name", "Series Name", "classid", "expense_amt", "performance_pct"]])
+    st.markdown("""</div>""", unsafe_allow_html=True)
+    
+    
+    st.markdown("""
+        <br><hr>
+        
+    """, unsafe_allow_html=True)
