@@ -197,7 +197,7 @@ st.dataframe(df_display.style.apply(lambda x: ["color: green" if v is True else 
 st.markdown("""</div>""", unsafe_allow_html=True))
 
                         csv_data = df_results.to_csv(index=False).encode("utf-8")
-                        st.download_button("⬇️ Download Results as CSV", csv_data, "performance_disclosure_results.csv", "text/csv")
+    st.download_button("⬇️ Download Results as CSV", csv_data, "performance_disclosure_results.csv", "text/csv")
 
                         with st.expander("📊 Performance Disclosure by Entity", expanded=True):
     if "Entity Name" in df_results.columns:
