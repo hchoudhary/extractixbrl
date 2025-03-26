@@ -132,7 +132,7 @@ with st.sidebar:
     form_types = st.multiselect("📄 Select Form Type(s)", ["N-CSR", "N-CSRS"])
     from_date = st.date_input("🗓️ From Date")
     to_date = st.date_input("🗓️ To Date")
-    limit = st.selectbox("🔢 Number of filings to check", options=[5, 20, 50, 100, 200,300,500], index=1)
+    limit = st.selectbox("🔢 Number of filings to check", options=[5, 20, 50, 100, 200], index=1)
 
 submit_clicked = st.sidebar.button("🚀 Submit")
 
@@ -184,23 +184,22 @@ if submit_clicked:
                             st.info(f"🏢 {entity_disclosing} out of {entity_count} entities ({entity_pct}%) disclose performance information.")
 
                         with st.expander("📄 Detailed Results", expanded=True):
-                         df_display = df_results.copy()
-                        for col in ["Entity Name", "Series Name"]:
-                            if col not in df_display.columns:
-                                df_display[col] = "Data not available"
-                            else:
-                                df_display[col] = df_display[col].fillna("Data not available")
-                        st.container().markdown("""
-                    <div style='overflow-x:auto;'>
-                    """, unsafe_allow_html=True)
-                    st.dataframe(df_display.style.apply(lambda x: ["color: green" if v is True else "" for v in x], subset=['Has Performance Data']))
+    df_display = df_results.copy()
+    for col in ["Entity Name", "Series Name"]:
+        if col not in df_display.columns:
+            df_display[col] = "Data not available"
+        else:
+            df_display[col] = df_display[col].fillna("Data not available")
+    st.container().markdown("""
+<div style='overflow-x:auto;'>
+""", unsafe_allow_html=True)
+st.dataframe(df_display.style.apply(lambda x: ["color: green" if v is True else "" for v in x], subset=['Has Performance Data']))
+st.markdown("""</div>""", unsafe_allow_html=True))
 
-st.markdown("""</div>""", unsafe_allow_html=True)
+                        csv_data = df_results.to_csv(index=False).encode("utf-8")
+                        st.download_button("⬇️ Download Results as CSV", csv_data, "performance_disclosure_results.csv", "text/csv")
 
-csv_data = df_results.to_csv(index=False).encode("utf-8")
-st.download_button("⬇️ Download Results as CSV", csv_data, "performance_disclosure_results.csv", "text/csv")
-
-with st.expander("📊 Performance Disclosure by Entity", expanded=True):
+                        with st.expander("📊 Performance Disclosure by Entity", expanded=True):
     if "Entity Name" in df_results.columns:
         perf_by_entity = df_results[df_results["Has Performance Data"]].groupby("Entity Name")["classid"].count().sort_values(ascending=False)
         fig, ax = plt.subplots(figsize=(10, 6))
@@ -211,7 +210,10 @@ with st.expander("📊 Performance Disclosure by Entity", expanded=True):
         st.pyplot(fig)
     else:
         st.info("ℹ️ 'Entity Name' column not found in mapping file.")
-
+                        else:
+                            st.info("ℹ️ 'Entity Name' column not found in mapping file.")
+    else:
+        st.error("❌ Please select form types and a valid date range.")
 
 if 'df_results' in st.session_state and not st.session_state.df_results.empty:
     df_results = st.session_state.df_results
@@ -250,14 +252,14 @@ if 'df_results' in st.session_state and not st.session_state.df_results.empty:
 st.dataframe(df_le_display[["Entity Name", "Series Name", "classid", "expense_amt", "performance_pct"]])
 st.markdown("""</div>""", unsafe_allow_html=True)
 
-st.write(f"#### 🚀 Highest Performance Funds (Filtered to ≥ {min_perf_filter}%)")
-df_hp_display = highest_perf.copy()
-for col in ["Entity Name", "Series Name"]:
-    if col not in df_hp_display.columns:
-        df_hp_display[col] = "Data not available"
-    else:
-        df_hp_display[col] = df_hp_display[col].fillna("Data not available")
-st.container().markdown("""
+        st.write(f"#### 🚀 Highest Performance Funds (Filtered to ≥ {min_perf_filter}%)")
+        df_hp_display = highest_perf.copy()
+        for col in ["Entity Name", "Series Name"]:
+            if col not in df_hp_display.columns:
+                df_hp_display[col] = "Data not available"
+            else:
+                df_hp_display[col] = df_hp_display[col].fillna("Data not available")
+        st.container().markdown("""
 <div style='overflow-x:auto;'>
 """, unsafe_allow_html=True)
 st.dataframe(df_hp_display[["Entity Name", "Series Name", "classid", "expense_amt", "performance_pct"]])
@@ -266,5 +268,8 @@ st.markdown("""</div>""", unsafe_allow_html=True)
 
 st.markdown("""
     <br><hr>
-    
+    <div style='text-align:center;'>
+        <p style='font-size:14px;color:gray;'>Developed with ❤️ for transparency and insight in mutual fund reporting.<br>
+        SEC Data via <a href='https://sec-api.io/' target='_blank'>sec-api.io</a></p>
+    </div>
 """, unsafe_allow_html=True)
