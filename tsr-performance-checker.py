@@ -196,10 +196,12 @@ if submit_clicked:
                     st.dataframe(df_display.style.apply(lambda x: ["color: green" if v is True else "" for v in x], subset=['Has Performance Data']))
 
 st.markdown("""</div>""", unsafe_allow_html=True)
-if 'df_results' in st.session_state and not st.session_state.df_results.empty:
-
+if 'df_results' in st.session_state and isinstance(st.session_state.df_results, pd.DataFrame) and not st.session_state.df_results.empty:
+    df_results = st.session_state.df_results
     csv_data = df_results.to_csv(index=False).encode("utf-8")
     st.download_button("⬇️ Download Results as CSV", csv_data, "performance_disclosure_results.csv", "text/csv")
+else:
+    st.error("❌ No valid data available to download.")
 
 with st.expander("📊 Performance Disclosure by Entity", expanded=True):
     if "Entity Name" in df_results.columns:
@@ -208,13 +210,12 @@ with st.expander("📊 Performance Disclosure by Entity", expanded=True):
         sns.barplot(x=perf_by_entity.values, y=perf_by_entity.index, ax=ax, palette="Blues_d")
         ax.set_xlabel("# of Classes Disclosing Performance")
         ax.set_ylabel("Entity Name")
-        ax.set_title("Performance Disclosure by Entity")
+        ax.setTitle("Performance Disclosure by Entity")
         st.pyplot(fig)
     else:
         st.info("ℹ️ 'Entity Name' column not found in mapping file.")
 
-
-if 'df_results' in st.session_state and not st.session_state.df_results.empty:
+if 'df_results' in st.session_state and isinstance(st.session_state.df_results, pd.DataFrame) and not st.session_state.df_results.empty:
     df_results = st.session_state.df_results
     with st.expander("🌟 Funds with Lowest Expenses and Highest Performance", expanded=True):
         col_exp, col_perf, col_topn = st.columns(3)
@@ -263,7 +264,6 @@ st.container().markdown("""
 """, unsafe_allow_html=True)
 st.dataframe(df_hp_display[["Entity Name", "Series Name", "classid", "expense_amt", "performance_pct"]])
 st.markdown("""</div>""", unsafe_allow_html=True)
-
 
 st.markdown("""
     <br><hr>
