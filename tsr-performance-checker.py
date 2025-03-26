@@ -132,7 +132,7 @@ with st.sidebar:
     form_types = st.multiselect("📄 Select Form Type(s)", ["N-CSR", "N-CSRS"])
     from_date = st.date_input("🗓️ From Date")
     to_date = st.date_input("🗓️ To Date")
-    limit = st.selectbox("🔢 Number of filings to check", options=[5, 20, 50, 100, 200], index=1)
+    limit = st.selectbox("🔢 Number of filings to check", options=[5, 20, 50, 100, 200,300,500], index=1)
 
 submit_clicked = st.sidebar.button("🚀 Submit")
 
