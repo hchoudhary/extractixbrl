@@ -253,23 +253,18 @@ if 'df_results' in st.session_state and isinstance(st.session_state.df_results, 
         st.container().markdown("""
 <div style='overflow-x:auto;'>
 """, unsafe_allow_html=True)
-st.dataframe(df_le_display[["Entity Name", "Series Name", "classid", "expense_amt", "performance_pct"]])
-st.markdown("""</div>""", unsafe_allow_html=True)
+        st.dataframe(df_le_display[["Entity Name", "Series Name", "classid", "expense_amt", "performance_pct"]])
+        st.markdown("""</div>""", unsafe_allow_html=True)
 
-st.write(f"#### 🚀 Highest Performance Funds (Filtered to ≥ {min_perf_filter}%)")
-df_hp_display = highest_perf.copy()
-for col in ["Entity Name", "Series Name"]:
-    if col not in df_hp_display.columns:
-        df_hp_display[col] = "Data not available"
-    else:
-        df_hp_display[col] = df_hp_display[col].fillna("Data not available")
-st.container().markdown("""
+        st.write(f"#### 🚀 Highest Performance Funds (Filtered to ≥ {min_perf_filter}%)")
+        df_hp_display = highest_perf.copy()
+        for col in ["Entity Name", "Series Name"]:
+            if col not in df_hp_display.columns:
+                df_hp_display[col] = "Data not available"
+            else:
+                df_hp_display[col] = df_hp_display[col].fillna("Data not available")
+        st.container().markdown("""
 <div style='overflow-x:auto;'>
 """, unsafe_allow_html=True)
-st.dataframe(df_hp_display[["Entity Name", "Series Name", "classid", "expense_amt", "performance_pct"]])
-st.markdown("""</div>""", unsafe_allow_html=True)
-
-st.markdown("""
-    <br><hr>
-    
-""", unsafe_allow_html=True)
+        st.dataframe(df_hp_display[["Entity Name", "Series Name", "classid", "expense_amt", "performance_pct"]])
+        st.markdown("""</div>""",* ▋
