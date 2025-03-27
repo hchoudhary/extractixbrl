@@ -184,16 +184,16 @@ if submit_clicked:
                             st.info(f"🏢 {entity_disclosing} out of {entity_count} entities ({entity_pct}%) disclose performance information.")
 
                         with st.expander("📄 Detailed Results", expanded=True):
-                         df_display = df_results.copy()
-                        for col in ["Entity Name", "Series Name"]:
-                            if col not in df_display.columns:
-                                df_display[col] = "Data not available"
-                            else:
-                                df_display[col] = df_display[col].fillna("Data not available")
-                        st.container().markdown("""
-                    <div style='overflow-x:auto;'>
-                    """, unsafe_allow_html=True)
-                    st.dataframe(df_display.style.apply(lambda x: ["color: green" if v is True else "" for v in x], subset=['Has Performance Data']))
+                            df_display = df_results.copy()
+                            for col in ["Entity Name", "Series Name"]:
+                                if col not in df_display.columns:
+                                    df_display[col] = "Data not available"
+                                else:
+                                    df_display[col] = df_display[col].fillna("Data not available")
+                            st.container().markdown("""
+                                <div style='overflow-x:auto;'>
+                            """, unsafe_allow_html=True)
+                            st.dataframe(df_display.style.apply(lambda x: ["color: green" if v is True else "" for v in x], subset=['Has Performance Data']))
 
 st.markdown("""</div>""", unsafe_allow_html=True)
 if 'df_results' in st.session_state and isinstance(st.session_state.df_results, pd.DataFrame) and not st.session_state.df_results.empty:
@@ -204,16 +204,20 @@ else:
     st.error("❌ No valid data available to download.")
 
 with st.expander("📊 Performance Disclosure by Entity", expanded=True):
-    if "Entity Name" in df_results.columns:
-        perf_by_entity = df_results[df_results["Has Performance Data"]].groupby("Entity Name")["classid"].count().sort_values(ascending=False)
-        fig, ax = plt.subplots(figsize=(10, 6))
-        sns.barplot(x=perf_by_entity.values, y=perf_by_entity.index, ax=ax, palette="Blues_d")
-        ax.set_xlabel("# of Classes Disclosing Performance")
-        ax.set_ylabel("Entity Name")
-        ax.setTitle("Performance Disclosure by Entity")
-        st.pyplot(fig)
+    if 'df_results' in st.session_state and isinstance(st.session_state.df_results, pd.DataFrame) and not st.session_state.df_results.empty:
+        df_results = st.session_state.df_results
+        if not df_results.empty and "Entity Name" in df_results.columns:
+            perf_by_entity = df_results[df_results["Has Performance Data"]].groupby("Entity Name")["classid"].count().sort_values(ascending=False)
+            fig, ax = plt.subplots(figsize=(10, 6))
+            sns.barplot(x=perf_by_entity.values, y=perf_by_entity.index, ax=ax, palette="Blues_d")
+            ax.set_xlabel("# of Classes Disclosing Performance")
+            ax.set_ylabel("Entity Name")
+            ax.set_title("Performance Disclosure by Entity")
+            st.pyplot(fig)
+        else:
+            st.info("ℹ️ 'Entity Name' column not found in the results or no valid data available.")
     else:
-        st.info("ℹ️ 'Entity Name' column not found in mapping file.")
+        st.error("❌ No valid data available to download.")
 
 if 'df_results' in st.session_state and isinstance(st.session_state.df_results, pd.DataFrame) and not st.session_state.df_results.empty:
     df_results = st.session_state.df_results
